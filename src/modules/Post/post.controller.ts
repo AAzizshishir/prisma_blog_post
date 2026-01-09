@@ -5,7 +5,6 @@ import { UserRole } from "../../middleware/auth";
 
 // create post
 const createPost = async (req: Request, res: Response) => {
-  // console.log(req.user);
   try {
     const user = req.user;
     if (!user) {
@@ -84,11 +83,6 @@ const getSinglePost = async (req: Request, res: Response) => {
 const getOwnPost = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    console.log(user);
-    // if (!user) {
-    //   throw new Error("unauthorized");
-    // }
-    console.log("user", user);
     const result = await postService.getOwnPost(user?.id as string);
     res.status(200).json({
       success: true,
