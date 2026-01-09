@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { postService } from "./post.service";
 import helperFuncForSorting from "../../helpers/helperFuncForSorting";
+import { UserRole } from "../../middleware/auth";
 
 // create post
 const createPost = async (req: Request, res: Response) => {
@@ -61,10 +62,34 @@ const getAllpost = async (req: Request, res: Response) => {
 
 // get single post
 const getSinglePost = async (req: Request, res: Response) => {
-  const { id } = req.params;
   try {
-    const result = await postService.getSinglePost(id as string);
+    const { id } = req.params;
+    const result = await postService.getPostById(id as string);
 
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Post retrieved successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      description: "this message from postId",
+    });
+  }
+};
+
+// get own post
+const getOwnPost = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    console.log(user);
+    // if (!user) {
+    //   throw new Error("unauthorized");
+    // }
+    console.log("user", user);
+    const result = await postService.getOwnPost(user?.id as string);
     res.status(200).json({
       success: true,
       data: result,
@@ -80,9 +105,16 @@ const getSinglePost = async (req: Request, res: Response) => {
 
 // update post
 const updatePost = async (req: Request, res: Response) => {
-  const id = req.params.id;
   try {
-    const result = await postService.updatePost(id as string, req.body);
+    const id = req.params.id;
+    const userId = req.user?.id;
+    const isAdmin = req.user?.role === UserRole.ADMIN;
+    const result = await postService.updatePost(
+      id as string,
+      req.body,
+      userId as string,
+      isAdmin
+    );
     res.status(200).json({
       succes: true,
       data: result,
@@ -98,9 +130,15 @@ const updatePost = async (req: Request, res: Response) => {
 
 // delete post
 const deletePost = async (req: Request, res: Response) => {
-  const { id } = req.params;
   try {
-    const result = await postService.deletePost(id as string);
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const isAdmin = req.user?.role === UserRole.ADMIN;
+    const result = await postService.deletePost(
+      id as string,
+      userId as string,
+      isAdmin as boolean
+    );
     res.status(200).json({
       succes: true,
       data: result,
@@ -114,10 +152,28 @@ const deletePost = async (req: Request, res: Response) => {
   }
 };
 
+const stats = async (req: Request, res: Response) => {
+  try {
+    const result = await postService.stats();
+    res.status(200).json({
+      succes: true,
+      data: result,
+      message: "stats retrived successfully",
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      succes: false,
+      message: error.message,
+    });
+  }
+};
+
 export const postController = {
   createPost,
   getAllpost,
   getSinglePost,
+  getOwnPost,
   updatePost,
   deletePost,
+  stats,
 };
