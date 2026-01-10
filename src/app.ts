@@ -5,6 +5,7 @@ import { auth } from "./lib/auth";
 import { commentRoutes } from "./modules/Comment/comment.router";
 import { postRoutes } from "./modules/Post/post.routes";
 import errorHandler from "./middleware/globalErrorHandler";
+import { notFound } from "./middleware/notFound";
 
 const app: Application = express();
 
@@ -29,6 +30,7 @@ app.get("/", (req, res) => {
   res.send("Prisma Blog App");
 });
 
+app.use(notFound);
 app.use(errorHandler);
 
 export default app;
