@@ -4,6 +4,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { commentRoutes } from "./modules/Comment/comment.router";
 import { postRoutes } from "./modules/Post/post.routes";
+import errorHandler from "./middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -19,7 +20,7 @@ app.use(
 app.use(express.json());
 
 // post routes
-app.use("/", postRoutes);
+app.use("/post", postRoutes);
 
 // comment routes
 app.use("/", commentRoutes);
@@ -27,5 +28,7 @@ app.use("/", commentRoutes);
 app.get("/", (req, res) => {
   res.send("Prisma Blog App");
 });
+
+app.use(errorHandler);
 
 export default app;
